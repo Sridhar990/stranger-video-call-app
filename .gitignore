@@ -1,0 +1,21 @@
+# Python virtual environments
+
+backend/.venv/
+
+# Python cache and test cache
+
+__pycache__/
+.pytest_cache/
+
+# Secrets and local environment variables
+
+.env
+*.env
+
+# IDE settings
+
+.vscode/
+
+# Flutter build files - added when mobile app is created
+
+mobile/build/
