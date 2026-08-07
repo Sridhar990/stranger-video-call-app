@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: stranger-video-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stranger_video_call
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: change_this_local_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

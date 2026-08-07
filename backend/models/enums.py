@@ -1,0 +1,5 @@
+from enum import Enum
+
+class TokenType(str,Enum):
+    EMAIL_VERIFICATION = "EMAIL_VERIFICATION"
+    PASSWORD_RESET = "PASSWORD_RESET"
