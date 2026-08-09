@@ -1,0 +1,44 @@
+from repositories.user_repository import get_user_by_email
+from fastapi import HTTPException,status
+from sqlalchemy.orm import Session 
+from schemas.user import LoginRequest
+from utils import verify_password
+
+
+
+
+async def login_user(user:LoginRequest,db:Session):
+    # Normailze email 
+    email= user.email.lower().strip()
+
+    # find user
+
+    existing_user = get_user_by_email(db=db,email=email)
+
+    # check if user exist
+
+    if not existing_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid email or password")
+
+
+    # verify password 
+
+    if not verify_password(user.password,existing_user.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid email or password")
+
+
+    # email verification 
+
+    if not existing_user.is_verified:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,datail="Please verify your email")
+
+
+    # check user is active
+
+    if not existing_user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Your account have been disabled")
+
+
+    return {
+        "message": "Login Successfully"
+    }

@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from models import User, TokenType
-from schemas import UserCreate
+from schemas.user import UserCreate
 from utils import hash_password
 from repositories.user_repository import (
     get_user_by_email,

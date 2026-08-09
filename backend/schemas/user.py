@@ -26,3 +26,9 @@ class UserCreate(BaseModel):
     @classmethod
     def password_validation(cls,value:str) -> str:
         return validate_password(value)
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+    

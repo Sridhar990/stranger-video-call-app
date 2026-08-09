@@ -1,10 +1,11 @@
 from fastapi import APIRouter,status,Depends,Query
-from schemas import UserCreate
+from schemas.user import UserCreate,LoginRequest
 from sqlalchemy.orm import Session
 from services.email_service import send_verification_email
 from services.auth_service import register_user
 from dependencies import get_db
 from services.email_verification_service import verify_email
+from services.login_service import login_user
 
 
 
@@ -29,4 +30,15 @@ def verify_email_route(
     return verify_email(
         db=db,
         token=token,
+    )
+
+
+@router.post("/login", status_code=status.HTTP_200_OK)
+async def login(
+    user: LoginRequest,
+    db: Session = Depends(get_db),
+):
+    return await login_user(
+        user=user,
+        db=db,
     )
