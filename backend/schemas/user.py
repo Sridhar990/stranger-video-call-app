@@ -1,6 +1,8 @@
-from pydantic import BaseModel,EmailStr,Field,field_validator
+from pydantic import BaseModel,EmailStr,Field,field_validator,ConfigDict
 import re
 from utils.validators import validate_password
+from uuid import UUID
+from datetime import datetime
 
 
 class UserCreate(BaseModel):
@@ -30,5 +32,20 @@ class UserCreate(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+class UserResponse(BaseModel):
+    id: UUID
+    username: str
+    email: EmailStr
+    is_verified: bool
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
 
     

@@ -3,6 +3,10 @@ from fastapi import HTTPException,status
 from sqlalchemy.orm import Session 
 from schemas.user import LoginRequest
 from utils import verify_password
+from .jwt_service import (
+    create_access_token,
+    create_refresh_token,
+)
 
 
 
@@ -30,7 +34,7 @@ async def login_user(user:LoginRequest,db:Session):
     # email verification 
 
     if not existing_user.is_verified:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,datail="Please verify your email")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Please verify your email")
 
 
     # check user is active
@@ -39,6 +43,13 @@ async def login_user(user:LoginRequest,db:Session):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Your account have been disabled")
 
 
+
+    access_token = create_access_token(user_id=str(existing_user.id))
+    refresh_token= create_refresh_token(user_id=str(existing_user.id))
+
+
     return {
-        "message": "Login Successfully"
-    }
+    "access_token": access_token,
+    "refresh_token": refresh_token,
+    "token_type": "Bearer",
+}
