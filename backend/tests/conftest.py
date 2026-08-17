@@ -1,4 +1,7 @@
 # tests/conftest.py
+import os
+
+os.environ["ENV"] = "test"
 
 import pytest
 from unittest.mock import patch

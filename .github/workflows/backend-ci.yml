@@ -3,6 +3,7 @@ name: Backend CI
 on:
   push:
     branches: [main]
+
   pull_request:
     branches: [main]
 
@@ -10,8 +11,48 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: stranger_video_call_test
+          POSTGRES_USER: app_user
+          POSTGRES_PASSWORD: change_this_local_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U app_user -d stranger_video_call_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      ENV: ${{ vars.ENV }}
+
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_FROM: ${{ secrets.MAIL_FROM }}
+
+      MAIL_SERVER: ${{ vars.MAIL_SERVER }}
+      MAIL_PORT: ${{ vars.MAIL_PORT }}
+      MAIL_STARTTLS: ${{ vars.MAIL_STARTTLS }}
+      MAIL_SSL_TLS: ${{ vars.MAIL_SSL_TLS }}
+
+      FRONTEND_URL: ${{ vars.FRONTEND_URL }}
+
+      EMAIL_VERIFICATION_TOKEN_EXPIRE_HOURS: ${{ vars.EMAIL_VERIFICATION_TOKEN_EXPIRE_HOURS }}
+      PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: ${{ vars.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES }}
+
+      ALGORITHM: ${{ vars.ALGORITHM }}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{ vars.ACCESS_TOKEN_EXPIRE_MINUTES }}
+      REFRESH_TOKEN_EXPIRE_DAYS: ${{ vars.REFRESH_TOKEN_EXPIRE_DAYS }}
+
     steps:
-      - name: Download repository code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -19,9 +60,13 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install backend packages
-        run: pip install -r backend/requirements.txt
-
-      - name: Run backend tests
+      - name: Install dependencies
         working-directory: backend
-        run: python -m pytest
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        working-directory: backend
+        run: |
+          python -m pytest -v

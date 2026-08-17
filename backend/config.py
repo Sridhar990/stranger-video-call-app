@@ -1,7 +1,12 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+ENV = os.getenv("ENV", "development")
+
+if ENV == "test":
+    load_dotenv(".env.test")
+else:
+    load_dotenv(".env")
 
 DATABASE_URL=os.getenv("DATABASE_URL")
 

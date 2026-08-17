@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from database import Base
 
 TEST_DATABASE_URL = (
-    "postgresql://app_user:change_this_local_password@localhost:5433/stranger_video_call_test"
+    "postgresql+psycopg://app_user:change_this_local_password@localhost:5433/stranger_video_call_test"
 )
 
 engine = create_engine(TEST_DATABASE_URL)

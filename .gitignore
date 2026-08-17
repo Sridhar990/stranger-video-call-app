@@ -10,6 +10,7 @@ __pycache__/
 # Secrets and local environment variables
 
 .env
+.env.test
 *.env
 
 # IDE settings
