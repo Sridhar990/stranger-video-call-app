@@ -40,7 +40,7 @@ async def login_user(user:LoginRequest,db:Session):
     # check user is active
 
     if not existing_user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Your account have been disabled")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Your account has been disabled")
 
 
 

@@ -1,5 +1,6 @@
 # tests/conftest.py
 import os
+from sqlalchemy import text
 
 os.environ["ENV"] = "test"
 
@@ -18,12 +19,18 @@ from tests.mocks import mock_send_verification_email
 
 @pytest.fixture
 def client():
-    with patch(
-        "services.auth_service.send_verification_email",
-        new=mock_send_verification_email,
-    ):
-        with TestClient(app) as client:
-            yield client
+    app.dependency_overrides[get_db] = override_get_db
+
+    try:
+        with patch(
+            "services.auth_service.send_verification_email",
+            new=mock_send_verification_email,
+        ):
+            with TestClient(app) as client:
+                yield client
+    finally:
+        app.dependency_overrides.clear()
+
 
 def override_get_db():
     db = TestingSessionLocal()
@@ -32,6 +39,31 @@ def override_get_db():
     finally:
         db.close()
 
+
+@pytest.fixture
+def db():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+        
+
+@pytest.fixture(autouse=True)
+def cleanup_database(db):
+    yield
+
+    db.execute(
+        text("""
+        TRUNCATE TABLE
+            user_tokens,
+            users
+        RESTART IDENTITY CASCADE;
+        """)
+    )
+
+    db.commit()
+
 @pytest.fixture(scope="session", autouse=True)
 def create_test_tables():
     Base.metadata.create_all(bind=engine)
@@ -39,5 +71,3 @@ def create_test_tables():
     yield
 
     Base.metadata.drop_all(bind=engine)
-
-app.dependency_overrides[get_db] = override_get_db
