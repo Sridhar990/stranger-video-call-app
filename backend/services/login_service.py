@@ -7,7 +7,11 @@ from .jwt_service import (
     create_access_token,
     create_refresh_token,
 )
+from datetime import datetime, timedelta
 
+from models import UserToken, TokenType
+from repositories.user_token_repository import create_user_token
+from config import REFRESH_TOKEN_EXPIRE_DAYS
 
 
 
@@ -46,6 +50,19 @@ async def login_user(user:LoginRequest,db:Session):
 
     access_token = create_access_token(user_id=str(existing_user.id))
     refresh_token= create_refresh_token(user_id=str(existing_user.id))
+
+    refresh_token_record = UserToken(
+    user_id=existing_user.id,
+    token=refresh_token,
+    token_type=TokenType.REFRESH_TOKEN,
+    expires_at=datetime.utcnow() + timedelta(
+        days=REFRESH_TOKEN_EXPIRE_DAYS
+    ),
+)
+    create_user_token(
+        db=db,
+        user_token=refresh_token_record,
+    )
 
 
     return {
