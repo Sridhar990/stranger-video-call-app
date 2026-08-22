@@ -82,6 +82,7 @@ def refresh_access_token(refresh_token: str, db):
         user_id=str(user.id)
     )
 
+
     return {
         "access_token": access_token,
         "token_type": "Bearer",
