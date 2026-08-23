@@ -47,3 +47,34 @@ subtype= MessageType.plain
 
     fm=FastMail(conf)
     await fm.send_message(message)
+
+
+
+
+async def send_password_reset_email(
+    email: str,
+    username: str,
+    reset_link: str,
+):
+    message = MessageSchema(
+        subject="Reset Your Password",
+        recipients=[email],
+        body=f"""
+Hello {username},
+
+We received a request to reset your password for your Stranger Video Call account.
+
+Click the link below to reset your password:
+
+{reset_link}
+
+If you did not request a password reset, please ignore this email.
+
+Thank you.
+
+""",
+        subtype=MessageType.plain,
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message)

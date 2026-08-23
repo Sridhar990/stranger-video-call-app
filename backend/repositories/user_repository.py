@@ -33,3 +33,13 @@ def get_user_by_id(
         .filter(User.id == user_id)
         .first()
     )
+
+def update_password(
+    db: Session,
+    user: User,
+    hashed_password: str,
+):
+    user.password = hashed_password
+    db.commit()
+    db.refresh(user)
+    return user

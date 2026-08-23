@@ -12,6 +12,7 @@ from repositories.user_repository import (
 from services.token_service import generate_user_token
 from services.email_service import send_verification_email
 from config import FRONTEND_URL
+from models import TokenType
 
 
 async def register_user(
@@ -51,6 +52,7 @@ async def register_user(
         db=db,
         user=new_user,
         token_type=TokenType.EMAIL_VERIFICATION,
+
     )
 
     # Build verification link

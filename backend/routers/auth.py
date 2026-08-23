@@ -1,5 +1,5 @@
 from fastapi import APIRouter,status,Depends,Query
-from schemas.user import UserCreate,LoginRequest,RefreshTokenRequest
+from schemas.user import UserCreate,LoginRequest,RefreshTokenRequest,ResetPasswordRequest,ForgotPasswordRequest,ResendVerificationRequest
 from sqlalchemy.orm import Session
 from services.email_service import send_verification_email
 from services.auth_service import register_user
@@ -8,6 +8,12 @@ from services.email_verification_service import verify_email
 from services.login_service import login_user
 from fastapi.security import OAuth2PasswordRequestForm
 from services.auth_refresh_service import refresh_access_token
+from services.forgot_password_service import forgot_password
+from services.reset_password_service import reset_password
+from services.resend_verification_service import (
+    resend_verification,
+)
+
 
 
 
@@ -70,4 +76,37 @@ def refresh_token(
     return refresh_access_token(
         refresh_token=request.refresh_token,
         db=db,
+    )
+
+
+@router.post("/forgot-password")
+async def forgot_password_route(
+    request: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    return await forgot_password(
+        request=request,
+        db=db,
+    )
+
+
+@router.post("/reset-password")
+def reset_password_route(
+    request: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    return reset_password(
+        request=request,
+        db=db,
+    )
+
+
+@router.post("/resend-verification")
+async def resend_verification_route(
+    request: ResendVerificationRequest,
+    db: Session = Depends(get_db),
+):
+    return await resend_verification(
+        db=db,
+        email=request.email,
     )

@@ -13,8 +13,7 @@ from main import app
 from tests.testing_database import TestingSessionLocal,engine
 from dependencies import get_db
 from database import Base
-from tests.mocks import mock_send_verification_email
-
+from tests.mocks import mock_send_verification_email,mock_send_password_reset_email
 
 
 @pytest.fixture
@@ -25,9 +24,16 @@ def client():
         with patch(
             "services.auth_service.send_verification_email",
             new=mock_send_verification_email,
+        ), patch(
+            "services.forgot_password_service.send_password_reset_email",
+            new=mock_send_password_reset_email,
+        ), patch(
+            "services.resend_verification_service.send_verification_email",
+            new=mock_send_verification_email,
         ):
             with TestClient(app) as client:
                 yield client
+
     finally:
         app.dependency_overrides.clear()
 
