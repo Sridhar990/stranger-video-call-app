@@ -1,5 +1,5 @@
 from fastapi import APIRouter,status,Depends,Query
-from schemas.user import UserCreate,LoginRequest,RefreshTokenRequest,ResetPasswordRequest,ForgotPasswordRequest,ResendVerificationRequest
+from schemas.user import UserCreate,LoginRequest,RefreshTokenRequest,ResetPasswordRequest,ForgotPasswordRequest,ResendVerificationRequest,LogoutRequest
 from sqlalchemy.orm import Session
 from services.email_service import send_verification_email
 from services.auth_service import register_user
@@ -13,6 +13,7 @@ from services.reset_password_service import reset_password
 from services.resend_verification_service import (
     resend_verification,
 )
+from services.logout_service import logout
 
 
 
@@ -109,4 +110,15 @@ async def resend_verification_route(
     return await resend_verification(
         db=db,
         email=request.email,
+    )
+
+
+@router.post("/logout")
+def logout_route(
+    request: LogoutRequest,
+    db: Session = Depends(get_db),
+):
+    return logout(
+        refresh_token=request.refresh_token,
+        db=db,
     )
