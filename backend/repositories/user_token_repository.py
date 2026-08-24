@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import UserToken
+from models import UserToken,TokenType
 
 
 
@@ -23,3 +23,26 @@ def mark_token_as_used(
     db.refresh(user_token)
 
     return user_token
+
+
+
+def revoke_all_refresh_tokens(
+    db: Session,
+    user_id,
+):
+    tokens = (
+        db.query(UserToken)
+        .filter(
+            UserToken.user_id == user_id,
+            UserToken.token_type == TokenType.REFRESH_TOKEN,
+            UserToken.used == False,
+        )
+        .all()
+    )
+
+    for token in tokens:
+        token.used = True
+
+    db.commit()
+
+    return tokens

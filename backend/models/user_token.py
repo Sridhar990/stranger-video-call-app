@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timedelta
 
-from sqlalchemy import String, DateTime, Boolean, ForeignKey, Enum
+from sqlalchemy import String, DateTime, Boolean, ForeignKey, Enum,Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,8 +24,8 @@ class UserToken(Base):
         nullable=False,
     )
 
-    token: Mapped[str] = mapped_column(
-        String(255),
+    token = mapped_column(
+        Text,
         unique=True,
         nullable=False,
     )

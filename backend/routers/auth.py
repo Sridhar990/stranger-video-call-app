@@ -1,9 +1,9 @@
 from fastapi import APIRouter,status,Depends,Query
-from schemas.user import UserCreate,LoginRequest,RefreshTokenRequest,ResetPasswordRequest,ForgotPasswordRequest,ResendVerificationRequest,LogoutRequest
+from schemas.user import UserCreate,LoginRequest,RefreshTokenRequest,ResetPasswordRequest,ForgotPasswordRequest,ResendVerificationRequest,LogoutRequest,ChangePasswordRequest
 from sqlalchemy.orm import Session
 from services.email_service import send_verification_email
 from services.auth_service import register_user
-from dependencies import get_db
+from dependencies import get_db,get_current_user
 from services.email_verification_service import verify_email
 from services.login_service import login_user
 from fastapi.security import OAuth2PasswordRequestForm
@@ -14,6 +14,12 @@ from services.resend_verification_service import (
     resend_verification,
 )
 from services.logout_service import logout
+from services.change_password_service import change_password
+from models import User
+from services.logout_all_devices_service import (
+    logout_all_devices,
+)
+
 
 
 
@@ -121,4 +127,29 @@ def logout_route(
     return logout(
         refresh_token=request.refresh_token,
         db=db,
+    )
+
+
+@router.post("/change-password")
+def change_password_route(
+    request: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return change_password(
+        request=request,
+        current_user=current_user,
+        db=db,
+    )
+
+
+
+@router.post("/logout-all-devices")
+def logout_all_devices_route(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return logout_all_devices(
+        db=db,
+        current_user=current_user,
     )
