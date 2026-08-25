@@ -1,6 +1,7 @@
 import secrets
 from datetime import datetime, timedelta
-
+from services.jwt_service import create_refresh_token
+from config import REFRESH_TOKEN_EXPIRE_DAYS
 from sqlalchemy.orm import Session
 
 from config import (
@@ -44,3 +45,27 @@ def generate_user_token(
     )
 
     return new_token
+
+
+def create_refresh_token_record(
+    db: Session,
+    user: User,
+):
+    refresh_token = create_refresh_token(
+        user_id=str(user.id),
+    )
+
+    refresh_token_record = UserToken(
+        user_id=user.id,
+        token=refresh_token,
+        token_type=TokenType.REFRESH_TOKEN,
+        expires_at=datetime.utcnow()
+        + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
+    )
+
+    create_user_token(
+        db=db,
+        user_token=refresh_token_record,
+    )
+
+    return refresh_token

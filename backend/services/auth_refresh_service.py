@@ -1,10 +1,12 @@
 from fastapi import HTTPException, status
 from models import TokenType
-from datetime import datetime,timezone
-from repositories.user_token_repository import get_token
+from datetime import datetime
+from repositories.user_token_repository import get_token,mark_token_as_used
 
 from repositories.user_repository import get_user_by_id
 from services.jwt_service import decode_token, create_access_token
+from services.token_service import create_refresh_token_record
+
 
 
 def refresh_access_token(refresh_token: str, db):
@@ -78,12 +80,25 @@ def refresh_access_token(refresh_token: str, db):
             detail="Your account has been disabled",
         )
 
+    refresh_token_record.used = True
+    db.commit()
+
+
+    mark_token_as_used(
+    db=db,
+    user_token=refresh_token_record,
+    )
     access_token = create_access_token(
         user_id=str(user.id)
     )
 
-
+    new_refresh_token = create_refresh_token_record(
+        db=db,
+        user=user,
+        )
+        
     return {
         "access_token": access_token,
+        "refresh_token": new_refresh_token,
         "token_type": "Bearer",
-    }
+        }

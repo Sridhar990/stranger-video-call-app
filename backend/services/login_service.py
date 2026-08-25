@@ -1,17 +1,13 @@
+
+from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+
 from repositories.user_repository import get_user_by_email
-from fastapi import HTTPException,status
-from sqlalchemy.orm import Session 
 from schemas.user import LoginRequest
 from utils import verify_password
-from .jwt_service import (
-    create_access_token,
-    create_refresh_token,
-)
-from datetime import datetime, timedelta
 
-from models import UserToken, TokenType
-from repositories.user_token_repository import create_user_token
-from config import REFRESH_TOKEN_EXPIRE_DAYS
+from .jwt_service import create_access_token
+from services.token_service import create_refresh_token_record
 
 
 
@@ -46,27 +42,18 @@ async def login_user(user:LoginRequest,db:Session):
     if not existing_user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Your account has been disabled")
 
+    access_token = create_access_token(
+        user_id=str(existing_user.id),
+    )
 
-
-    access_token = create_access_token(user_id=str(existing_user.id))
-    refresh_token= create_refresh_token(user_id=str(existing_user.id))
-
-    refresh_token_record = UserToken(
-    user_id=existing_user.id,
-    token=refresh_token,
-    token_type=TokenType.REFRESH_TOKEN,
-    expires_at=datetime.utcnow() + timedelta(
-        days=REFRESH_TOKEN_EXPIRE_DAYS
-    ),
-)
-    create_user_token(
+    refresh_token = create_refresh_token_record(
         db=db,
-        user_token=refresh_token_record,
+        user=existing_user,
     )
 
 
     return {
     "access_token": access_token,
     "refresh_token": refresh_token,
-    "token_type": "Bearer",
-}
+    "token_type": "Bearer"
+    }
