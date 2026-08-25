@@ -3,11 +3,13 @@ import os
 from sqlalchemy import text
 
 os.environ["ENV"] = "test"
+os.environ["TESTING"] = "true"
 
 import pytest
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
+from core.rate_limit import limiter
 
 from main import app
 from tests.testing_database import TestingSessionLocal,engine
@@ -77,3 +79,16 @@ def create_test_tables():
     yield
 
     Base.metadata.drop_all(bind=engine)
+
+
+
+
+
+@pytest.fixture
+def enable_rate_limiter():
+    previous_state = limiter.enabled
+    limiter.enabled = True
+
+    yield
+
+    limiter.enabled = previous_state
