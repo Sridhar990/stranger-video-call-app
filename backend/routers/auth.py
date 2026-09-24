@@ -187,3 +187,5 @@ def logout_all_devices_route(
         db=db,
         current_user=current_user,
     )
+
+# route
